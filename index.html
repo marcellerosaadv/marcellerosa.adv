@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM · Marcelle Rosa Advocacia</title>
+<style>
+:root{
+  --bg:#0f1419; --panel:#171e26; --panel2:#1e2730; --line:#2a3642;
+  --txt:#e8edf2; --muted:#8a99a8; --gold:#c2a14d; --gold2:#d9bd6e;
+  --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --amber:#f59e0b; --purple:#a855f7;
+  --radius:12px; --shadow:0 6px 24px rgba(0,0,0,.35);
+  font-synthesis:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:"Segoe UI",system-ui,Roboto,Arial,sans-serif;
+  font-size:14px; line-height:1.45;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{height:10px;width:10px}
+::-webkit-scrollbar-thumb{background:#2f3b48;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* layout */
+.app{display:flex;flex-direction:column;height:100vh}
+header.top{
+  display:flex;align-items:center;gap:16px;padding:12px 20px;
+  background:linear-gradient(90deg,#141b22,#1a232c);border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{
+  width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--gold),#8c6f2b);color:#1a1407;font-weight:800;font-size:18px;
+  box-shadow:var(--shadow)
+}
+.brand h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.3px}
+.brand small{color:var(--muted);font-size:11px;display:block;font-weight:400}
+nav.tabs{display:flex;gap:4px;margin-left:8px;flex-wrap:wrap}
+nav.tabs button{
+  background:transparent;border:1px solid transparent;color:var(--muted);
+  padding:9px 14px;border-radius:9px;font-weight:600;font-size:13px;transition:.15s
+}
+nav.tabs button:hover{color:var(--txt);background:var(--panel2)}
+nav.tabs button.active{color:var(--gold2);background:var(--panel2);border-color:var(--line)}
+.spacer{flex:1}
+.tbtn{
+  background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  padding:9px 13px;border-radius:9px;font-weight:600;font-size:13px;transition:.15s;
+  display:inline-flex;align-items:center;gap:7px
+}
+.tbtn:hover{border-color:var(--gold)}
+.tbtn.primary{background:linear-gradient(135deg,var(--gold),#a9893c);color:#16110a;border-color:transparent}
+.tbtn.primary:hover{filter:brightness(1.07)}
+main{flex:1;overflow:auto;padding:20px}
+.view{display:none;animation:fade .25s}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* cards & panels */
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.kpi .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi .value{font-size:28px;font-weight:800;margin-top:6px;letter-spacing:-.5px}
+.kpi .sub{color:var(--muted);font-size:12px;margin-top:2px}
+.kpi .value.green{color:var(--green)} .kpi .value.gold{color:var(--gold2)}
+.kpi .value.blue{color:var(--blue)} .kpi .value.red{color:var(--red)}
+.panel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.panel-h h3{margin:0;font-size:15px}
+.charts{grid-template-columns:1fr 1fr}
+@media(max-width:880px){.charts{grid-template-columns:1fr}}
+
+/* bars */
+.bar-row{display:grid;grid-template-columns:120px 1fr 52px;align-items:center;gap:10px;margin:9px 0}
+.bar-row .nm{color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{background:var(--panel2);border-radius:6px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s}
+.bar-row .vl{text-align:right;font-weight:700;font-size:12px}
+
+/* funnel chart */
+.funnel{display:flex;flex-direction:column;gap:7px}
+.fn-row{display:flex;align-items:center;gap:10px}
+.fn-bar{height:34px;border-radius:8px;display:flex;align-items:center;padding:0 12px;color:#10151b;font-weight:800;min-width:46px;transition:.5s}
+.fn-lbl{width:120px;color:var(--muted);font-size:12px;font-weight:600;text-align:right}
+
+/* kanban */
+.board{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;min-height:60vh}
+.col{flex:0 0 270px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;max-height:78vh}
+.col-h{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;position:sticky;top:0}
+.col-h .dot{width:9px;height:9px;border-radius:50%}
+.col-h .t{font-weight:700;font-size:13px}
+.col-h .c{margin-left:auto;background:var(--panel2);color:var(--muted);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.col-h .sum{font-size:10px;color:var(--green);font-weight:700;width:100%;margin-top:2px}
+.col-body{padding:10px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:9px;min-height:40px}
+.col-body.drag-over{background:rgba(194,161,77,.07);outline:2px dashed var(--gold);outline-offset:-6px;border-radius:8px}
+.lead{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px;cursor:grab;transition:.15s}
+.lead:hover{border-color:var(--gold);transform:translateY(-1px)}
+.lead.dragging{opacity:.4}
+.lead .nm{font-weight:700;font-size:13px;margin-bottom:5px}
+.lead .meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.chip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#243040;color:var(--muted)}
+.chip.area{background:rgba(194,161,77,.16);color:var(--gold2)}
+.lead .ft{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px}
+.lead .due{color:var(--amber);font-weight:700}
+.lead .due.late{color:var(--red)}
+.lead .val{color:var(--green);font-weight:800}
+
+/* table */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input.search,select.fil{
+  background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  padding:9px 12px;border-radius:9px;font-size:13px;outline:none
+}
+input.search{min-width:240px}
+input.search:focus,select.fil:focus{border-color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+tbody td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--panel2)}
+.st{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.muted{color:var(--muted)}
+
+/* agenda */
+.agenda-group{margin-bottom:20px}
+.agenda-group h4{margin:0 0 10px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ag-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.ag-item:hover{border-color:var(--gold)}
+.ag-item .dt{width:90px;font-weight:700}
+.ag-item .nm{flex:1;font-weight:600}
+.ag-item .ph{color:var(--muted);font-size:12px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(5,8,11,.7);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow:auto;padding:30px 16px}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:100%;max-width:640px;box-shadow:var(--shadow)}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.modal-h h3{margin:0;font-size:16px}
+.modal-b{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-b .full{grid-column:1/-1}
+.fld label{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.fld input,.fld select,.fld textarea{
+  width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  padding:9px 11px;border-radius:9px;font-size:13px;outline:none
+}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--gold)}
+.fld textarea{resize:vertical;min-height:62px}
+.modal-f{display:flex;gap:10px;justify-content:space-between;padding:16px 20px;border-top:1px solid var(--line)}
+.x{background:transparent;border:none;color:var(--muted);font-size:22px;line-height:1}
+.x:hover{color:var(--txt)}
+.danger{background:transparent;border:1px solid var(--line);color:var(--red);padding:9px 13px;border-radius:9px;font-weight:600}
+.danger:hover{border-color:var(--red)}
+.hist{margin-top:6px;max-height:140px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.hist .h{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px}
+.hist .h .d{color:var(--gold2);font-weight:700;font-size:11px}
+.empty{text-align:center;color:var(--muted);padding:50px 20px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gold);color:#16110a;padding:12px 22px;border-radius:30px;font-weight:700;box-shadow:var(--shadow);opacity:0;transition:.3s;z-index:99}
+.toast.show{transform:translateX(-50%);opacity:1}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark">MR</div>
+      <div><h1>Marcelle Rosa <span style="color:var(--gold2)">Advocacia</span><small>CRM &amp; Funil de Clientes</small></h1></div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-v="dash" class="active">📊 Dashboard</button>
+      <button data-v="funil">🗂️ Funil</button>
+      <button data-v="leads">📋 Leads</button>
+      <button data-v="agenda">📅 Follow-ups</button>
+    </nav>
+    <div class="spacer"></div>
+    <button class="tbtn" id="btnImport" title="Importar backup">⬆️ Importar</button>
+    <button class="tbtn" id="btnExport" title="Exportar backup">⬇️ Backup</button>
+    <button class="tbtn primary" id="btnNew">＋ Novo Lead</button>
+    <input type="file" id="fileImport" accept=".json" hidden>
+  </header>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dash">
+      <div class="grid kpis" id="kpis"></div>
+      <div class="grid charts" style="margin-top:14px">
+        <div class="card">
+          <div class="panel-h"><h3>Funil de Conversão</h3></div>
+          <div class="funnel" id="funnelChart"></div>
+        </div>
+        <div class="card">
+          <div class="panel-h"><h3>Leads por Origem</h3></div>
+          <div id="origemChart"></div>
+        </div>
+        <div class="card">
+          <div class="panel-h"><h3>Leads por Área</h3></div>
+          <div id="areaChart"></div>
+        </div>
+        <div class="card">
+          <div class="panel-h"><h3>Evolução mensal (novos leads)</h3></div>
+          <div id="mesChart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FUNIL / KANBAN -->
+    <section class="view" id="view-funil">
+      <div class="toolbar">
+        <input class="search" id="kSearch" placeholder="🔍 Buscar por nome...">
+        <select class="fil" id="kArea"><option value="">Todas as áreas</option></select>
+        <select class="fil" id="kOrigem"><option value="">Todas as origens</option></select>
+        <span class="muted" style="margin-left:auto;font-size:12px">Arraste os cartões entre as colunas para mudar a etapa</span>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- LEADS TABLE -->
+    <section class="view" id="view-leads">
+      <div class="toolbar">
+        <input class="search" id="tSearch" placeholder="🔍 Buscar nome, telefone, comentário...">
+        <select class="fil" id="tEtapa"><option value="">Todas as etapas</option></select>
+        <select class="fil" id="tArea"><option value="">Todas as áreas</option></select>
+        <span class="muted" id="tCount" style="margin-left:auto;font-size:12px"></span>
+      </div>
+      <div class="card" style="padding:0;overflow:auto">
+        <table>
+          <thead><tr>
+            <th>Cliente</th><th>Área</th><th>Origem</th><th>Etapa</th>
+            <th>Próx. contato</th><th>Valor</th><th>Chamado em</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- AGENDA -->
+    <section class="view" id="view-agenda">
+      <div id="agenda"></div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-h"><h3 id="mTitle">Novo Lead</h3><button class="x" id="mClose">×</button></div>
+    <div class="modal-b">
+      <div class="fld full"><label>Nome do cliente *</label><input id="f-nome" placeholder="Nome completo"></div>
+      <div class="fld"><label>Telefone</label><input id="f-telefone" placeholder="(DDD) 90000-0000"></div>
+      <div class="fld"><label>Etapa do funil</label><select id="f-etapa"></select></div>
+      <div class="fld"><label>Área</label><select id="f-area"></select></div>
+      <div class="fld"><label>Tipo de ação</label><input id="f-tipoAcao" placeholder="Ex: Clexane, FIV, Exame..."></div>
+      <div class="fld"><label>Origem do lead</label><select id="f-origem"></select></div>
+      <div class="fld"><label>Qualificação</label><select id="f-qualificacao"><option>QUALIFICADO</option><option>DESQUALIFICADO</option></select></div>
+      <div class="fld"><label>Data do chamado</label><input id="f-dataChamado" type="date"></div>
+      <div class="fld"><label>Próximo contato</label><input id="f-proxContato" type="date"></div>
+      <div class="fld"><label>Último contato</label><input id="f-ultimoContato" type="date"></div>
+      <div class="fld"><label>Valor fechado (R$)</label><input id="f-valorFechado" type="number" step="0.01" placeholder="0,00"></div>
+      <div class="fld full"><label>Objeção</label><input id="f-objecao" placeholder="Principal objeção do cliente"></div>
+      <div class="fld full"><label>Comentários</label><textarea id="f-comentarios" placeholder="Anotações sobre o atendimento..."></textarea></div>
+      <div class="fld full">
+        <label>Histórico de follow-ups</label>
+        <div style="display:flex;gap:8px">
+          <input id="f-newHist" placeholder="Nova anotação de contato..." style="flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:9px 11px;border-radius:9px">
+          <button class="tbtn" id="addHist">Adicionar</button>
+        </div>
+        <div class="hist" id="histList"></div>
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="danger" id="mDelete">🗑 Excluir</button>
+      <div style="display:flex;gap:10px">
+        <button class="tbtn" id="mCancel">Cancelar</button>
+        <button class="tbtn primary" id="mSave">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DADOS DE BASE (estrutura da aba DADOS) ============ */
+const ETAPAS=[
+  {k:"NOVO",       t:"Novo / 1º chamado", c:"#3b82f6"},
+  {k:"CONVERSA",   t:"Em conversa",       c:"#8b5cf6"},
+  {k:"PROPOSTA",   t:"Proposta enviada",  c:"#f59e0b"},
+  {k:"CONTRATO",   t:"Contrato enviado",  c:"#06b6d4"},
+  {k:"AGUARDANDO", t:"Aguardando retorno",c:"#eab308"},
+  {k:"FECHADO",    t:"Fechado ✅",        c:"#22c55e"},
+  {k:"PERDIDO",    t:"Não fechou",        c:"#ef4444"},
+];
+const ETAPA_MAP=Object.fromEntries(ETAPAS.map(e=>[e.k,e]));
+const AREAS=["SAÚDE","PREVIDENCIÁRIO","TRABALHISTA","CÍVEL","FAMÍLIA","CONSUMIDOR","OUTROS"];
+const ORIGENS=["META ADS","INSTAGRAM","INDICAÇÃO","GRUPO WP","CONHECIDA","RECORRENTE","SITE","OUTROS"];
+const SEED=/*__SEED__*/[{"id":"L1000","nome":"Lead sem nome 1","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"INDICAÇÃO","qualificacao":"QUALIFICADO","etapa":"AGUARDANDO","dataChamado":"2024-01-03","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Cliente com potencial e com negetiva plano em mãos","campanha":"","historico":[]},{"id":"L1001","nome":"Lead sem nome 2","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2024-01-03","proxContato":"2026-02-20","ultimoContato":"2026-02-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Atendimento fora da rede. Esta gestante e não tem médica para atender ao pré natal/parto. Já fez pedido na unimed e só manada o mesmo méico que não confia e é homem","campanha":"","historico":[]},{"id":"L1002","nome":"Lead sem nome 3","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"CONVERSA","dataChamado":"2024-01-03","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"CONSEGUIU NO SUS . MANDOU MSG EXAME NEGADO","campanha":"","historico":[]},{"id":"L1003","nome":"Lead sem nome 4","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2024-01-03","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Grande chance de fechamento.","campanha":"","historico":[]},{"id":"L1004","nome":"Lead sem nome 5","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"INDICAÇÃO","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2024-01-03","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Grávida e com gama/blue saúde. HNSN descredenciado MSG EXAME NEGADO","campanha":"","historico":[]},{"id":"L1005","nome":"Lead sem nome 6","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2024-01-03","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Ela ta sem wp.","campanha":"","historico":[]},{"id":"L1006","nome":"Lead sem nome 7","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"INSTAGRAM","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2024-01-03","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"FIV sus. Marcou ee não pode fazer a reunião","campanha":"","historico":[]},{"id":"L1007","nome":"Lead sem nome 8","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"AGUARDANDO","dataChamado":"2024-02-20","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Ficou de analisar a proposta","campanha":"","historico":[{"data":"","texto":"12/05 - COPY EXAMES"}]},{"id":"L1008","nome":"Lead sem nome 9","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2024-10-08","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Ofereci condição especial e ainda n fechou. Está esperando resposta do SUS, mas fez o pedido faz tempo.","campanha":"","historico":[]},{"id":"L1009","nome":"Lead sem nome 10","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"META ADS","qualificacao":"QUALIFICADO","etapa":"AGUARDANDO","dataChamado":"2024-11-26","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Vai tomar heparina que conseguiu o SUS","campanha":"","historico":[{"data":"","texto":"12/05 - COPY EXAMES"}]},{"id":"L1010","nome":"Lead sem nome 11","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"DESQUALIFICADO","etapa":"CONVERSA","dataChamado":"2024-12-04","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Está nas tentativas","campanha":"","historico":[]},{"id":"L1011","nome":"Lead sem nome 12","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"DESQUALIFICADO","etapa":"CONVERSA","dataChamado":"2024-12-04","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Está nas tentativas, disse vai se organizar e entrar em contato depois","campanha":"","historico":[]},{"id":"L1012","nome":"Lead sem nome 13","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"CONVERSA","dataChamado":"2024-12-04","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Tem interesse na FIV, passou por erro médico, vai me explicar melhor.","campanha":"","historico":[]},{"id":"L1013","nome":"Lead sem nome 14","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PROPOSTA","dataChamado":"2024-12-27","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Conseguiu do SUS. Só quer fechar apos o exame morfológico que fará em 29/01.  Teve pré eclampsia grave com parto prematuro extremo e perda do bebê MANDOU MSG SOBRE EXAME NEGADO","campanha":"","historico":[]},{"id":"L1014","nome":"Lead sem nome 15","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"2025-11-11","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"Falta fazer pagamento e contrato","campanha":"","historico":[]},{"id":"L1015","nome":"Lead sem nome 16","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PROPOSTA","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1016","nome":"Lead sem nome 17","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PROPOSTA","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1017","nome":"Lead sem nome 18","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2025-01-02","proxContato":"2025-12-11","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1018","nome":"Lead sem nome 19","telefone":"","area":"OUTROS","tipoAcao":"","origem":"OUTROS","qualificacao":"DESQUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-07-30","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1019","nome":"Lead sem nome 20","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2025-01-02","proxContato":"2025-07-31","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1020","nome":"Lead sem nome 21","telefone":"","area":"SAÚDE","tipoAcao":"PREVI","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2025-01-02","proxContato":"2025-07-31","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1021","nome":"Lead sem nome 22","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-04","ultimoContato":"2025-09-08","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[{"data":"","texto":"Enviada mensagem para dar inicio ao atendimento."}]},{"id":"L1022","nome":"Lead sem nome 23","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2025-01-02","proxContato":"2025-07-31","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1023","nome":"Lead sem nome 24","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-09","ultimoContato":"2025-08-08","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1024","nome":"Lead sem nome 25","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-07-31","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1025","nome":"Lead sem nome 26","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-07-31","ultimoContato":"2025-07-25","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1026","nome":"Lead sem nome 27","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1027","nome":"Lead sem nome 28","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"DESQUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1028","nome":"Lead sem nome 29","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-09-12","ultimoContato":"2025-09-09","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[{"data":"","texto":"Enviada mensagem para dar inicio ao atendimento."}]},{"id":"L1029","nome":"Lead sem nome 30","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"PERDIDO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1030","nome":"Lead sem nome 31","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1031","nome":"Lead sem nome 32","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1032","nome":"Lead sem nome 33","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1033","nome":"Lead sem nome 34","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1034","nome":"Lead sem nome 35","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"FECHADO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1035","nome":"Lead sem nome 36","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1036","nome":"Lead sem nome 37","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1037","nome":"Lead sem nome 38","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"2025-08-15","ultimoContato":"2025-08-12","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1038","nome":"Lead sem nome 39","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1039","nome":"Lead sem nome 40","telefone":"","area":"TRABALHISTA","tipoAcao":"","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-02","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1040","nome":"Lead sem nome 41","telefone":"","area":"SAÚDE","tipoAcao":"","origem":"OUTROS","qualificacao":"DESQUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-07","proxContato":"2025-07-31","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[{"data":"","texto":"05/05 - NÃO VAI PRECISAR"}]},{"id":"L1041","nome":"Lead sem nome 42","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-08","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1042","nome":"Lead sem nome 43","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-11","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1043","nome":"Lead sem nome 44","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-11","proxContato":"2025-07-31","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1044","nome":"Lead sem nome 45","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-11","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1045","nome":"Lead sem nome 46","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-13","proxContato":"2025-07-31","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[{"data":"","texto":"12/05 - COPY EXAMES"}]},{"id":"L1046","nome":"Lead sem nome 47","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-13","proxContato":"","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1047","nome":"Lead sem nome 48","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-14","proxContato":"2025-07-31","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]},{"id":"L1048","nome":"Lead sem nome 49","telefone":"","area":"SAÚDE","tipoAcao":"CLEXANE","origem":"OUTROS","qualificacao":"QUALIFICADO","etapa":"NOVO","dataChamado":"2025-01-15","proxContato":"2025-07-31","ultimoContato":"","valorFechado":0,"dataFechamento":"","objecao":"","comentarios":"","campanha":"","historico":[]}];
+const KEY="crm_marcellerosa_v1";
+
+/* ============ ESTADO ============ */
+let DB=load();
+let editingId=null, draftHist=[];
+
+function load(){
+  try{const s=localStorage.getItem(KEY);if(s)return JSON.parse(s);}catch(e){}
+  const init=SEED.map(normalize);
+  localStorage.setItem(KEY,JSON.stringify(init));
+  return init;
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(DB));}
+function normalize(l){
+  return Object.assign({telefone:"",tipoAcao:"",valorFechado:0,proxContato:"",ultimoContato:"",
+    dataChamado:"",objecao:"",comentarios:"",historico:[],campanha:"",qualificacao:"QUALIFICADO"},l);
+}
+function uid(){return "L"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const money=n=>"R$ "+(Number(n)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=iso=>{if(!iso)return "—";const[a,m,d]=iso.split("-");return `${d}/${m}/${a}`;};
+function todayISO(){return new Date().toISOString().slice(0,10);}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1900);}
+function escapeHtml(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ============ NAVEGAÇÃO ============ */
+$("#tabs").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-v]");if(!b)return;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $("#view-"+b.dataset.v).classList.add("active");
+  render();
+});
+
+/* ============ RENDER GERAL ============ */
+function render(){renderKpis();renderCharts();renderBoard();renderTable();renderAgenda();}
+
+/* ---- DASHBOARD ---- */
+function renderKpis(){
+  const total=DB.length;
+  const fechados=DB.filter(l=>l.etapa==="FECHADO");
+  const ativos=DB.filter(l=>!["FECHADO","PERDIDO"].includes(l.etapa));
+  const perdidos=DB.filter(l=>l.etapa==="PERDIDO");
+  const faturado=fechados.reduce((s,l)=>s+(Number(l.valorFechado)||0),0);
+  const decididos=fechados.length+perdidos.length;
+  const conv=decididos?Math.round(fechados.length/decididos*100):0;
+  const k=[
+    {l:"Total de leads",v:total,c:""},
+    {l:"Em andamento",v:ativos.length,c:"blue",s:"no funil ativo"},
+    {l:"Fechados",v:fechados.length,c:"green",s:conv+"% de conversão"},
+    {l:"Faturamento fechado",v:money(faturado),c:"gold",s:fechados.length+" contratos"},
+  ];
+  $("#kpis").innerHTML=k.map(x=>`<div class="card kpi"><div class="label">${x.l}</div>
+    <div class="value ${x.c}">${x.v}</div><div class="sub">${x.s||"&nbsp;"}</div></div>`).join("");
+}
+function countBy(arr,key){const m={};arr.forEach(l=>{const v=l[key]||"OUTROS";m[v]=(m[v]||0)+1;});return m;}
+function barChart(el,map,color){
+  const ents=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(1,...ents.map(e=>e[1]));
+  el.innerHTML=ents.length?ents.map(([k,v])=>`<div class="bar-row">
+    <div class="nm" title="${escapeHtml(k)}">${escapeHtml(k)}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${v/max*100}%${color?`;background:${color}`:""}"></div></div>
+    <div class="vl">${v}</div></div>`).join(""):`<div class="empty">Sem dados</div>`;
+}
+function renderCharts(){
+  // funnel
+  const order=["NOVO","CONVERSA","PROPOSTA","CONTRATO","AGUARDANDO","FECHADO"];
+  const counts=order.map(k=>({e:ETAPA_MAP[k],n:DB.filter(l=>l.etapa===k).length}));
+  const max=Math.max(1,...counts.map(c=>c.n));
+  $("#funnelChart").innerHTML=counts.map(c=>`<div class="fn-row">
+    <div class="fn-lbl">${c.e.t}</div>
+    <div class="fn-bar" style="width:${Math.max(8,c.n/max*100)}%;background:${c.e.c}">${c.n}</div></div>`).join("");
+  barChart($("#origemChart"),countBy(DB,"origem"),"linear-gradient(90deg,#3b82f6,#60a5fa)");
+  barChart($("#areaChart"),countBy(DB,"area"));
+  // por mês
+  const m={};DB.forEach(l=>{if(l.dataChamado){const ym=l.dataChamado.slice(0,7);m[ym]=(m[ym]||0)+1;}});
+  const ents=Object.entries(m).sort();
+  const mx=Math.max(1,...ents.map(e=>e[1]));
+  $("#mesChart").innerHTML=ents.length?ents.map(([k,v])=>{
+    const[y,mo]=k.split("-");const lbl=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][+mo-1]+"/"+y.slice(2);
+    return `<div class="bar-row"><div class="nm">${lbl}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${v/mx*100}%;background:linear-gradient(90deg,#a855f7,#c084fc)"></div></div>
+      <div class="vl">${v}</div></div>`;}).join(""):`<div class="empty">Sem datas registradas</div>`;
+}
+
+/* ---- KANBAN ---- */
+function kanbanFilters(){
+  const q=$("#kSearch").value.toLowerCase(),ar=$("#kArea").value,og=$("#kOrigem").value;
+  return DB.filter(l=>(!q||(l.nome||"").toLowerCase().includes(q))&&(!ar||l.area===ar)&&(!og||l.origem===og));
+}
+function renderBoard(){
+  const data=kanbanFilters();
+  $("#board").innerHTML=ETAPAS.map(e=>{
+    const items=data.filter(l=>l.etapa===e.k);
+    const sum=items.reduce((s,l)=>s+(Number(l.valorFechado)||0),0);
+    return `<div class="col" data-etapa="${e.k}">
+      <div class="col-h">
+        <span class="dot" style="background:${e.c}"></span>
+        <span class="t">${e.t}</span><span class="c">${items.length}</span>
+        ${sum>0?`<span class="sum">${money(sum)}</span>`:""}
+      </div>
+      <div class="col-body" data-etapa="${e.k}">
+        ${items.map(leadCard).join("")}
+      </div></div>`;
+  }).join("");
+  bindDnD();
+}
+function leadCard(l){
+  const late=l.proxContato&&l.proxContato<todayISO()&&!["FECHADO","PERDIDO"].includes(l.etapa);
+  return `<div class="lead" draggable="true" data-id="${l.id}">
+    <div class="nm">${escapeHtml(l.nome)}</div>
+    <div class="meta">
+      <span class="chip area">${escapeHtml(l.area||"—")}</span>
+      ${l.tipoAcao?`<span class="chip">${escapeHtml(l.tipoAcao)}</span>`:""}
+      ${l.origem?`<span class="chip">${escapeHtml(l.origem)}</span>`:""}
+    </div>
+    <div class="ft">
+      <span class="${late?'due late':'due'}">${l.proxContato?(late?'⚠ ':'')+fmtDate(l.proxContato):(l.telefone?'📞 '+escapeHtml(l.telefone):'')}</span>
+      ${l.valorFechado>0?`<span class="val">${money(l.valorFechado)}</span>`:""}
+    </div></div>`;
+}
+let dragId=null;
+function bindDnD(){
+  document.querySelectorAll(".lead").forEach(el=>{
+    el.addEventListener("dragstart",()=>{dragId=el.dataset.id;el.classList.add("dragging");});
+    el.addEventListener("dragend",()=>{el.classList.remove("dragging");});
+    el.addEventListener("click",()=>openModal(el.dataset.id));
+  });
+  document.querySelectorAll(".col-body").forEach(col=>{
+    col.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drag-over");});
+    col.addEventListener("dragleave",()=>col.classList.remove("drag-over"));
+    col.addEventListener("drop",e=>{
+      e.preventDefault();col.classList.remove("drag-over");
+      const l=DB.find(x=>x.id===dragId);if(!l)return;
+      const ne=col.dataset.etapa;
+      if(l.etapa!==ne){
+        l.etapa=ne;
+        if(ne==="FECHADO"&&!l.dataFechamento)l.dataFechamento=todayISO();
+        l.historico=l.historico||[];
+        l.historico.unshift({data:todayISO(),texto:"Movido para: "+ETAPA_MAP[ne].t});
+        save();render();toast(l.nome+" → "+ETAPA_MAP[ne].t);
+      }
+    });
+  });
+}
+["kSearch","kArea","kOrigem"].forEach(id=>$("#"+id).addEventListener("input",renderBoard));
+
+/* ---- TABELA ---- */
+function renderTable(){
+  const q=$("#tSearch").value.toLowerCase(),et=$("#tEtapa").value,ar=$("#tArea").value;
+  const rows=DB.filter(l=>{
+    const hay=(l.nome+" "+l.telefone+" "+l.comentarios).toLowerCase();
+    return (!q||hay.includes(q))&&(!et||l.etapa===et)&&(!ar||l.area===ar);
+  }).sort((a,b)=>(b.dataChamado||"").localeCompare(a.dataChamado||""));
+  $("#tCount").textContent=rows.length+" de "+DB.length+" leads";
+  $("#tbody").innerHTML=rows.length?rows.map(l=>{
+    const e=ETAPA_MAP[l.etapa]||{t:l.etapa,c:"#888"};
+    return `<tr data-id="${l.id}">
+      <td><b>${escapeHtml(l.nome)}</b>${l.telefone?`<div class="muted" style="font-size:11px">${escapeHtml(l.telefone)}</div>`:""}</td>
+      <td>${escapeHtml(l.area||"—")}</td><td class="muted">${escapeHtml(l.origem||"—")}</td>
+      <td><span class="st" style="background:${e.c}22;color:${e.c}">${e.t}</span></td>
+      <td>${fmtDate(l.proxContato)}</td>
+      <td class="${l.valorFechado>0?'':'muted'}">${l.valorFechado>0?money(l.valorFechado):"—"}</td>
+      <td class="muted">${fmtDate(l.dataChamado)}</td></tr>`;
+  }).join(""):`<tr><td colspan="7" class="empty">Nenhum lead encontrado</td></tr>`;
+  document.querySelectorAll("#tbody tr[data-id]").forEach(tr=>tr.addEventListener("click",()=>openModal(tr.dataset.id)));
+}
+["tSearch","tEtapa","tArea"].forEach(id=>$("#"+id).addEventListener("input",renderTable));
+
+/* ---- AGENDA ---- */
+function renderAgenda(){
+  const today=todayISO();
+  const pend=DB.filter(l=>l.proxContato&&!["FECHADO","PERDIDO"].includes(l.etapa)).sort((a,b)=>a.proxContato.localeCompare(b.proxContato));
+  const atrasados=pend.filter(l=>l.proxContato<today);
+  const hoje=pend.filter(l=>l.proxContato===today);
+  const futuros=pend.filter(l=>l.proxContato>today);
+  const grp=(title,arr,color)=>arr.length?`<div class="agenda-group"><h4 style="color:${color}">${title} (${arr.length})</h4>
+    ${arr.map(l=>`<div class="ag-item" data-id="${l.id}">
+      <span class="dt" style="color:${color}">${fmtDate(l.proxContato)}</span>
+      <span class="nm">${escapeHtml(l.nome)} <span class="chip area">${escapeHtml(l.area)}</span></span>
+      <span class="ph">${l.telefone?'📞 '+escapeHtml(l.telefone):''} · ${(ETAPA_MAP[l.etapa]||{}).t||l.etapa}</span>
+    </div>`).join("")}</div>`:"";
+  const html=grp("⚠️ Atrasados",atrasados,"#ef4444")+grp("🔔 Para hoje",hoje,"#f59e0b")+grp("📅 Próximos",futuros,"#3b82f6");
+  $("#agenda").innerHTML=html||`<div class="empty">Nenhum follow-up agendado.<br>Defina o campo <b>Próximo contato</b> nos leads para vê-los aqui.</div>`;
+  document.querySelectorAll("#agenda .ag-item").forEach(it=>it.addEventListener("click",()=>openModal(it.dataset.id)));
+}
+
+/* ============ MODAL ============ */
+function fillSelect(sel,arr,extra){
+  const cur=sel.value;
+  sel.innerHTML=(extra||[]).concat(arr).map(o=>typeof o==="object"?`<option value="${o.k}">${o.t}</option>`:`<option>${o}</option>`).join("");
+  if(cur)sel.value=cur;
+}
+function openModal(id){
+  editingId=id||null;
+  const l=id?DB.find(x=>x.id===id):normalize({id:uid(),nome:"",etapa:"NOVO",area:"SAÚDE",origem:"META ADS",dataChamado:todayISO()});
+  draftHist=JSON.parse(JSON.stringify(l.historico||[]));
+  $("#mTitle").textContent=id?"Editar Lead":"Novo Lead";
+  $("#mDelete").style.display=id?"block":"none";
+  fillSelect($("#f-etapa"),ETAPAS);
+  fillSelect($("#f-area"),AREAS);
+  fillSelect($("#f-origem"),ORIGENS);
+  const set=(f,v)=>$("#f-"+f).value=v==null?"":v;
+  set("nome",l.nome);set("telefone",l.telefone);set("etapa",l.etapa);set("area",l.area);
+  set("tipoAcao",l.tipoAcao);set("origem",l.origem);set("qualificacao",l.qualificacao);
+  set("dataChamado",l.dataChamado);set("proxContato",l.proxContato);set("ultimoContato",l.ultimoContato);
+  set("valorFechado",l.valorFechado||"");set("objecao",l.objecao);set("comentarios",l.comentarios);
+  renderHist();
+  $("#overlay").classList.add("open");
+}
+function renderHist(){
+  $("#histList").innerHTML=draftHist.length?draftHist.map((h,i)=>`<div class="h">
+    <span class="d">${h.data?fmtDate(h.data):"—"}</span> ${escapeHtml(h.texto)}
+    <span style="float:right;cursor:pointer;color:var(--muted)" data-del="${i}">✕</span></div>`).join(""):
+    `<div class="muted" style="font-size:12px">Sem histórico ainda.</div>`;
+  document.querySelectorAll("#histList [data-del]").forEach(x=>x.addEventListener("click",()=>{draftHist.splice(+x.dataset.del,1);renderHist();}));
+}
+$("#addHist").addEventListener("click",()=>{
+  const v=$("#f-newHist").value.trim();if(!v)return;
+  draftHist.unshift({data:todayISO(),texto:v});$("#f-newHist").value="";renderHist();
+});
+function closeModal(){$("#overlay").classList.remove("open");editingId=null;}
+$("#mClose").onclick=$("#mCancel").onclick=closeModal;
+$("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))closeModal();});
+$("#mSave").addEventListener("click",()=>{
+  const get=f=>$("#f-"+f).value.trim();
+  const nome=get("nome");if(!nome){toast("Informe o nome do cliente");return;}
+  let l=editingId?DB.find(x=>x.id===editingId):null;
+  const isNew=!l;
+  if(isNew){l=normalize({id:uid()});DB.unshift(l);}
+  Object.assign(l,{
+    nome,telefone:get("telefone"),etapa:get("etapa"),area:get("area"),tipoAcao:get("tipoAcao"),
+    origem:get("origem"),qualificacao:get("qualificacao"),dataChamado:get("dataChamado"),
+    proxContato:get("proxContato"),ultimoContato:get("ultimoContato"),
+    valorFechado:parseFloat(get("valorFechado"))||0,objecao:get("objecao"),
+    comentarios:get("comentarios"),historico:draftHist
+  });
+  if(l.etapa==="FECHADO"&&!l.dataFechamento)l.dataFechamento=todayISO();
+  save();render();closeModal();toast(isNew?"Lead criado ✅":"Lead atualizado ✅");
+});
+$("#mDelete").addEventListener("click",()=>{
+  if(!editingId)return;
+  if(confirm("Excluir este lead permanentemente?")){
+    DB=DB.filter(x=>x.id!==editingId);save();render();closeModal();toast("Lead excluído");
+  }
+});
+$("#btnNew").addEventListener("click",()=>openModal(null));
+
+/* ============ IMPORT / EXPORT ============ */
+$("#btnExport").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="crm-marcellerosa-"+todayISO()+".json";a.click();
+  toast("Backup exportado ⬇️");
+});
+$("#btnImport").addEventListener("click",()=>$("#fileImport").click());
+$("#fileImport").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const arr=JSON.parse(r.result);
+    if(!Array.isArray(arr))throw 0;
+    if(confirm("Importar "+arr.length+" leads? Isso substitui os dados atuais (faça um backup antes).")){
+      DB=arr.map(normalize);save();render();toast("Importado ✅");
+    }
+  }catch(err){toast("Arquivo inválido");}
+  e.target.value="";};
+  r.readAsText(f);
+});
+
+/* ============ INIT ============ */
+function initFilters(){
+  fillSelect($("#kArea"),AREAS,[{k:"",t:"Todas as áreas"}]);
+  fillSelect($("#kOrigem"),ORIGENS,[{k:"",t:"Todas as origens"}]);
+  fillSelect($("#tArea"),AREAS,[{k:"",t:"Todas as áreas"}]);
+  fillSelect($("#tEtapa"),ETAPAS,[{k:"",t:"Todas as etapas"}]);
+}
+initFilters();
+render();
+</script>
+</body>
+</html>
