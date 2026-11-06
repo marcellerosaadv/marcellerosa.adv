@@ -3,8 +3,3 @@ node_modules/
 .DS_Store
 *.log
 
-# Marketing jurídico: vídeos e fotos brutas são pesados, ficam só no computador
-meu-marketing-juridico/videos/**/*.mp4
-meu-marketing-juridico/videos/**/*.mov
-meu-marketing-juridico/fotos/originais/*
-!meu-marketing-juridico/fotos/originais/.gitkeep
