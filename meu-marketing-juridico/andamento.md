@@ -4,7 +4,7 @@ Advogado(a): Marcelle Rosa
 Inscrição: (OAB/UF nº, PENDENTE de confirmação)
 Escritório ou sociedade: Marcelle Rosa Advocacia
 Áreas de atuação: Direito à Saúde (defesa de segurados contra planos de saúde; demandas de saúde contra o SUS)
-Pasta: Google Drive > Meu Drive > meu-marketing-juridico (no computador, pelo Google Drive para computador)
+Pasta: Google Drive > MÍDIAS SOCIAIS > meu-marketing-juridico (sincronizada no computador pelo Google Drive para computador)
 Última atualização: 2026-11-06
 
 ## Fases do Rito PICO
