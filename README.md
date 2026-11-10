@@ -44,4 +44,4 @@ qualificação e comentários). Os contatos que não tinham nome na planilha apa
 
 ## Automação do Instagram
 
-A pasta [`instagram-bot/`](instagram-bot/README.md) contém a automação de Instagram (comentário vira DM, respostas no direct e captura de leads), hospedada na Vercel com banco Neon. Instruções de instalação no README da pasta.
+A automação de Instagram (comentário vira DM, respostas no direct e captura de leads) fica no repositório privado `marcellerosaadv/instagram-mra`, publicada na Vercel com banco Neon.
