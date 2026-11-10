@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { SCHEMA } from "./schema";
 
 let client: ReturnType<typeof neon> | null = null;
 
@@ -11,10 +12,26 @@ export function sql() {
   return client;
 }
 
+let ready: Promise<void> | null = null;
+
+/** Cria as tabelas uma vez por instância (idempotente). */
+function ensureSchema(): Promise<void> {
+  if (!ready) {
+    ready = (async () => {
+      for (const stmt of SCHEMA) await sql().query(stmt);
+    })().catch((e) => {
+      ready = null;
+      throw e;
+    });
+  }
+  return ready;
+}
+
 export async function q<T = Record<string, unknown>>(
   text: string,
   params: unknown[] = [],
 ): Promise<T[]> {
+  await ensureSchema();
   return (await sql().query(text, params)) as T[];
 }
 

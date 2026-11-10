@@ -27,8 +27,7 @@ Usa somente a API oficial da Meta (Instagram API with Instagram Login).
 ### 1. Neon
 1. Crie um projeto em neon.tech (região São Paulo, se disponível).
 2. Copie a *connection string* (pooled).
-3. Crie as tabelas: `DATABASE_URL="..." npm run db:migrate`
-   (ou cole o conteúdo de `sql/schema.sql` no *SQL Editor* do Neon).
+3. As tabelas são criadas automaticamente no primeiro acesso ao sistema.
 
 ### 2. Vercel
 1. *Add New Project* → importe este repositório.
@@ -78,4 +77,4 @@ Estrutura:
 | `lib/instagram.ts` | Chamadas à API do Instagram e renovação do token |
 | `app/api/cron/refresh-token` | Renovação automática do token (diária, renova a cada 7 dias) |
 | `proxy.ts` | Senha do painel |
-| `sql/schema.sql` | Tabelas do Neon |
+| `lib/schema.ts` | Tabelas do Neon (criadas automaticamente) |
