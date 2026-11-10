@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/cron/refresh-token", "schedule": "17 9 * * *" }]
+}

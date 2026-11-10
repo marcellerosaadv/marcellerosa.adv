@@ -41,3 +41,7 @@ Use **Importar** para levar os dados para outro computador ou navegador.
 O sistema já vem com os **49 registros** da aba DADOS importados (datas, área, etapa do funil,
 qualificação e comentários). Os contatos que não tinham nome na planilha aparecem como
 *"Lead sem nome N"* — basta abrir e completar.
+
+## Automação do Instagram
+
+A pasta [`instagram-bot/`](instagram-bot/README.md) contém a automação de Instagram (comentário vira DM, respostas no direct e captura de leads), hospedada na Vercel com banco Neon. Instruções de instalação no README da pasta.
