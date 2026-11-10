@@ -1,43 +1,57 @@
 # CRM · Marcelle Rosa Advocacia
 
-Sistema de CRM e funil de clientes do escritório, criado a partir da aba **DADOS** da planilha original.
-É um **aplicativo de um único arquivo** (`index.html`) — não precisa de instalação, servidor nem internet.
+CRM e funil de clientes do escritório, com entrada automática das conversas do **Direct do Instagram**.
 
-## Como usar
+- **Hospedagem:** Vercel (Next.js)
+- **Banco:** Postgres da Neon (driver `pg` com `attachDatabasePool`, recomendado pela Neon para Vercel)
+- **Login:** Neon Auth (e-mail e senha) + lista de e-mails autorizados
+- **Direct:** webhook do app "MRA Instchat" (Meta for Developers)
 
-1. Baixe o arquivo `index.html`.
-2. Dê **dois cliques** nele — abre no navegador (Chrome, Edge, etc.).
-3. Pronto. Os dados ficam salvos automaticamente **no seu navegador**.
+## Como funciona o Direct
 
-> Dica: para acessar de qualquer lugar (celular/computador), dá para publicar de graça no GitHub Pages. Posso configurar isso se você quiser.
+1. Alguém manda mensagem no Direct do escritório.
+2. A Meta chama `POST /api/instagram/webhook`. A assinatura `X-Hub-Signature-256` é conferida com o App Secret.
+3. Contato novo: vira lead na etapa **Novo**, origem **INSTAGRAM**, campanha **Direct**.
+   Contato já existente: a mensagem entra no **histórico** e atualiza o **último contato**.
+4. As respostas enviadas pelo escritório (eco) também entram no histórico.
+5. Mensagens reenviadas pela Meta são ignoradas (controle pelo `mid`).
+6. O CRM aberto no navegador atualiza sozinho a cada 30 segundos.
 
-## O que o sistema faz
+## Variáveis de ambiente (Vercel › Settings › Environment Variables)
 
-- **📊 Dashboard** — total de leads, em andamento, fechados, taxa de conversão, faturamento, funil, leads por origem/área e evolução mensal.
-- **🗂️ Funil (Kanban)** — arraste os cartões entre as etapas: Novo → Em conversa → Proposta → Contrato → Aguardando → Fechado / Não fechou.
-- **📋 Leads** — tabela com busca e filtros por etapa e área.
-- **📅 Follow-ups** — quem precisa de contato (atrasados, hoje, próximos), com base no campo *Próximo contato*.
-- **＋ Novo Lead / Editar** — cadastro completo: nome, telefone, área, tipo de ação, origem, valor fechado, objeção, comentários e histórico de contatos.
+| Variável | Origem |
+| --- | --- |
+| `DATABASE_URL` | Injetada pela integração Neon do Marketplace da Vercel |
+| `NEON_AUTH_BASE_URL` | Painel da Neon › Auth (URL do Auth do branch) |
+| `NEON_AUTH_COOKIE_SECRET` | Gerar: `openssl rand -base64 32` |
+| `ALLOWED_EMAILS` | E-mails da equipe que podem entrar, separados por vírgula |
+| `META_APP_SECRET` | App MRA Instchat › Configurações do app › Básico › Chave secreta |
+| `INSTAGRAM_VERIFY_TOKEN` | Texto livre; o mesmo é digitado no cadastro do webhook na Meta |
+| `INSTAGRAM_ACCESS_TOKEN` | Opcional: token da conta do Instagram, usado para buscar nome e @ do remetente |
 
-## Campos (baseados na aba DADOS)
+Nenhuma dessas chaves deve ser colada em chat, e-mail ou no código.
 
-Data do chamado · Nome · Telefone · Área · Tipo de ação · Origem · Qualificação ·
-Etapa do funil · Último contato · Próximo contato · Valor fechado · Data de fechamento ·
-Objeção · Comentários · Histórico de follow-ups.
+## Banco
 
-## Backup (IMPORTANTE)
+As tabelas (`db/schema.sql`) são criadas automaticamente no primeiro acesso, e os 49 registros
+iniciais (`db/seed.json`) são carregados uma única vez.
 
-Como os dados ficam no navegador, **faça backup com frequência**:
+## Backup
 
-- **⬇️ Backup** — baixa um arquivo `.json` com todos os leads.
-- **⬆️ Importar** — restaura/transfere os dados a partir de um arquivo `.json`.
+Os botões **⬇️ Backup** e **⬆️ Importar** continuam funcionando. Importar **substitui** todos os leads do banco.
 
-Use **Importar** para levar os dados para outro computador ou navegador.
+## Desenvolvimento e testes
 
-⚠️ Limpar os dados de navegação / cache do navegador apaga os dados. Sempre tenha um backup recente.
+```bash
+npm install
+npm run build
+```
 
-## Dados iniciais
+Teste ponta a ponta (banco, API e webhook):
 
-O sistema já vem com os **49 registros** da aba DADOS importados (datas, área, etapa do funil,
-qualificação e comentários). Os contatos que não tinham nome na planilha aparecem como
-*"Lead sem nome N"* — basta abrir e completar.
+```bash
+BASE_URL=http://localhost:3000 META_APP_SECRET=... INSTAGRAM_VERIFY_TOKEN=... npm run test:e2e
+```
+
+Para teste local sem o Neon Auth, `CRM_LOCAL_TEST_USER=<e-mail autorizado>` simula um usuário logado.
+Essa variável é ignorada na Vercel.
